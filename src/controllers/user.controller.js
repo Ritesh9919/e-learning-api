@@ -8,7 +8,7 @@ const registerUser = asyncHandler(async(req, res)=> {
     throw new ApiError(400, 'All fields are required');
    }
 
-   const user = await User.findOne({email});;
+   const user = await User.findOne({email});
    if(user) {
      throw new ApiError(409, 'User already exist');
    }
@@ -29,15 +29,42 @@ const registerUser = asyncHandler(async(req, res)=> {
     email,
     password,
     profileImage:userProfileImage?.url
-   })
+   });
+
+   const createdUser = await User.findById(registeredUser._id).select('-password');
+
+
 
    return res.status(201)
-   .json(new ApiResponse(200, {user:registeredUser}, 'User register successfully'));
+   .json(new ApiResponse(200, {user:createdUser}, 'User register successfully'));
 })
 
 
+const loginUser = asyncHandler(async(req, res)=> {
+   const {email, password} = req.body;
+   if(!email || !password) {
+    throw new ApiError(400, 'Both fields are required');
+   }
 
+   const user = await User.findOne({email});
+   if(!user) {
+    throw new ApiError(404, 'User does not exist');
+   }
+
+   const isPasswordCurrect = await user.isPasswordCurrect(password);
+   if(!isPasswordCurrect) {
+    throw new ApiError(401, 'Password is incurrect');
+   }
+   
+   const loginUser = await User.findById(user._id).select('-password');
+   const accessToken = await user.generateAccessToken();
+   return res.status(200)
+   .cookie("accessToken", accessToken)
+   .json(new ApiResponse(200, {user:loginUser,accessToken}, 'User login successfully'));
+   
+})
 
 export {
-    registerUser
+    registerUser,
+    loginUser
 }
