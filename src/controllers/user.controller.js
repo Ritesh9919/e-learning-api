@@ -1,6 +1,6 @@
 import mongoose,{isValidObjectId} from 'mongoose';
 import {User} from '../models/user.model.js';
-import {asyncHandler,ApiError,ApiResponse, uploadOnCloudinary} from '../utils/index.js';
+import {asyncHandler,ApiError,ApiResponse, uploadOnCloudinary, deleteFileOnCloudinary} from '../utils/index.js';
 
 
 const registerUser = asyncHandler(async(req, res)=> {
@@ -98,9 +98,39 @@ const updateUserProfile = asyncHandler(async(req, res)=> {
    .json(new ApiResponse(200, {user}, 'User profile updated successfully'));
 })
 
+const updateUserProfileImage = asyncHandler(async(req, res)=> {
+   const userProfileImageLocalPath = req.file?.path;
+   if(!userProfileImageLocalPath) {
+      throw new ApiError(400, 'User profile file is required');
+   }
+
+
+
+   const userProfileImage = await uploadOnCloudinary(userProfileImageLocalPath);
+   if(!updateUserProfile) {
+      throw new ApiError(400, 'User profile file is required');
+   }
+
+     const user = await User.findById(req.user._id);
+     // delete old profile image from cloudinary
+     await deleteFileOnCloudinary(user.profileImage);
+
+     const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {$set:{profileImage:userProfileImage.url}},
+      {new:true}
+     ).select('-password');
+
+     return res.status(200)
+     .json(new ApiResponse(200, {user:updatedUser}, 'Profile image updated successfully'));
+
+
+})
+
 export {
     registerUser,
     loginUser,
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    updateUserProfileImage
 }
