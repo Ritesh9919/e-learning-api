@@ -82,8 +82,25 @@ const getUserProfile = asyncHandler(async(req, res)=> {
 
 })
 
+const updateUserProfile = asyncHandler(async(req, res)=> {
+   const {name, email} = req.body;
+   if(!name || !email) {
+      throw new ApiError(400, 'Both fields are required');
+   }
+
+   const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {$set:{name, email}},
+      {new:true}
+   );
+
+   return res.status(200)
+   .json(new ApiResponse(200, {user}, 'User profile updated successfully'));
+})
+
 export {
     registerUser,
     loginUser,
-    getUserProfile
+    getUserProfile,
+    updateUserProfile
 }
