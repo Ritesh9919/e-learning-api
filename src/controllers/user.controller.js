@@ -1,10 +1,11 @@
+import mongoose,{isValidObjectId} from 'mongoose';
 import {User} from '../models/user.model.js';
 import {asyncHandler,ApiError,ApiResponse, uploadOnCloudinary} from '../utils/index.js';
 
 
 const registerUser = asyncHandler(async(req, res)=> {
-   const {name, email, password} = req.body;
-   if(!name || !email || !password) {
+   const {name, email, password,role} = req.body;
+   if(!name || !email || !password || !role) {
     throw new ApiError(400, 'All fields are required');
    }
 
@@ -28,7 +29,8 @@ const registerUser = asyncHandler(async(req, res)=> {
     name,
     email,
     password,
-    profileImage:userProfileImage?.url
+    profileImage:userProfileImage?.url,
+    role
    });
 
    const createdUser = await User.findById(registeredUser._id).select('-password');
@@ -64,7 +66,24 @@ const loginUser = asyncHandler(async(req, res)=> {
    
 })
 
+const getUserProfile = asyncHandler(async(req, res)=> {
+   const {userId} = req.params;
+   if(!isValidObjectId(userId)) {
+      throw new ApiError(400, 'Invalid user id');
+   }
+
+   const user = await User.findById(userId).select('-password');
+   if(!user) {
+      throw new ApiError(404, 'User does not exist');
+   }
+
+   return res.status(200)
+   .json(new ApiResponse(200, {user}, 'User profile fetched successfully'));
+
+})
+
 export {
     registerUser,
-    loginUser
+    loginUser,
+    getUserProfile
 }
