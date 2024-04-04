@@ -10,6 +10,10 @@ const createCourse = asyncHandler(async(req, res)=> {
     if(!title || !description || !category || !price || !level || !instructor) {
         throw new ApiError(400, 'All fields are required');
     }
+    const user = await User.findById(req.user._id);
+    if(user.role !== 'Admin') {
+        throw new ApiError(400, 'Only admin can create course');
+    }
 
     const courseImageLocalPath = req.files?.image[0]?.path;
     if(!courseImageLocalPath) {
@@ -31,6 +35,9 @@ const createCourse = asyncHandler(async(req, res)=> {
     if(!courseVideo.url) {
         throw new ApiError(400, 'Error while uploading video on cloudinary');
     }
+
+    
+    
 
     const course = await Course.create({
         title,
@@ -69,7 +76,29 @@ const getCourse = asyncHandler(async(req, res)=> {
 })
 
 const updateCourse = asyncHandler(async(req, res)=> {
+     const {title, description, price, category, level} = req.body;
+     const {courseId} = req.params;
+     if(!isValidObjectId(courseId)) {
+        throw new ApiError(400, 'Invalid course id');
+     }
 
+     if(!title || !description || !price) {
+        throw new ApiError(400, 'All fields are required');
+     }
+
+     const user = await User.findById(req.user._id);
+     if(user.role !== 'Admin') {
+        throw new ApiError(400, 'Only admin can update course');
+     }
+
+     const coures = await Course.findByIdAndUpdate(
+        courseId,
+        {$set:{title,description,price}},
+        {new:true}
+     )
+
+     return res.status(200)
+     .json(new ApiResponse(200, {coures}, 'Course updated successfully'));
 })
 
 
