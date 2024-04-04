@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import {connectDB} from './db/index.js';
 
 import userRouter from './routes/user.route.js';
+import courseRouter from './routes/course.route.js';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get('/', (req, res)=> {
 
 
 app.use('/api/users', userRouter);
+app.use('/api/courses', courseRouter);
 
 
 

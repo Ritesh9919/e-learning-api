@@ -32,29 +32,18 @@ const courseSchema = new mongoose.Schema({
         ref:'User'
     },
     image:{
-        type:String,
+        type:Object,
         required:true
     },
     video:{
-        type:String,
+        type:Object,
         required:true
     },
     duration:{
         type:Number,
         required:true
 
-    },
-    averageRating:{
-        type:Number,
-        default:0
-    },
-    numberOfReviews:{
-        type:Number,
-        default:0
-    },
-    studentEnrolled:{
-        type:Number,
-        default:0
+    
     }
 
 

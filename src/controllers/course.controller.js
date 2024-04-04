@@ -1,0 +1,75 @@
+import {Course} from '../models/course.model.js';
+import {User} from '../models/user.model.js';
+import {asyncHandler, ApiError, ApiResponse,uploadOnCloudinary} from '../utils/index.js';
+
+
+
+const createCourse = asyncHandler(async(req, res)=> {
+    const {title, description, category, price, level, instructor} = req.body;
+    if(!title || !description || !category || !price || !level || !instructor) {
+        throw new ApiError(400, 'All fields are required');
+    }
+
+    const courseImageLocalPath = req.files?.image[0]?.path;
+    if(!courseImageLocalPath) {
+        throw new ApiError(400, 'Course image file is required');
+    }
+
+    const courseImage = await uploadOnCloudinary(courseImageLocalPath);
+    if(!courseImage.url) {
+        throw new ApiError(400, 'Error while uploading image on cloudinary');
+    }
+
+    const courseVideoLocalPath = req.files?.video[0]?.path;
+    if(!courseVideoLocalPath) {
+        throw new ApiError(400, 'Course video file is required');
+    }
+
+    const courseVideo = await uploadOnCloudinary(courseVideoLocalPath);
+    
+    if(!courseVideo.url) {
+        throw new ApiError(400, 'Error while uploading video on cloudinary');
+    }
+
+    const course = await Course.create({
+        title,
+        description,
+        category,
+        price,
+        level,
+        instructor,
+        image:{key:courseImage.public_id, url:courseImage.url},
+        video:{key:courseVideo.public_id, url:courseVideo.url},
+        duration:courseVideo?.duration
+    })
+
+    return res.status(201)
+    .json(new ApiResponse(200, {course}, 'Course created successfully'));
+})
+
+const getCourses = asyncHandler(async(req, res)=> {
+
+})
+
+
+const getCourse = asyncHandler(async(req, res)=> {
+
+})
+
+const updateCourse = asyncHandler(async(req, res)=> {
+
+})
+
+
+const deleteCourse = asyncHandler(async(req, res)=> {
+
+})
+
+
+export {
+    createCourse,
+    getCourse,
+    getCourses,
+    updateCourse,
+    deleteCourse
+}
