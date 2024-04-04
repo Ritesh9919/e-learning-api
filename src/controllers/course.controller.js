@@ -56,7 +56,22 @@ const createCourse = asyncHandler(async(req, res)=> {
 })
 
 const getCourses = asyncHandler(async(req, res)=> {
+   const {category, level, page=1, limit=10} = req.query;
+   const query = {};
 
+   if(category) {
+    query.category = category;
+   }
+
+   if(level) {
+    query.level = level;
+   }
+
+   const coures = await Course.find(query).limit(limit).skip((page-1) * limit);
+   return res.status(200)
+   .json(new ApiResponse(200, {coures}, 'Coures fetched successfully'));
+   
+   
 })
 
 
