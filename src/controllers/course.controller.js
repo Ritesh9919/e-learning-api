@@ -103,7 +103,20 @@ const updateCourse = asyncHandler(async(req, res)=> {
 
 
 const deleteCourse = asyncHandler(async(req, res)=> {
+     const {courseId} = req.params;
+     if(!isValidObjectId(courseId)) {
+        throw new ApiError(400, 'Invalid course id');
+     }
 
+     const user = await User.findById(req.user._id);
+     if(user.role !== 'Admin') {
+        throw new ApiError(400, 'Only admin can update course');
+     }
+
+     await Course.findByIdAndDelete(courseId);
+     return res.status(200)
+     .json(new ApiResponse(200, {}, 'Course deleted successfully'));
+     
 })
 
 
