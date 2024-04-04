@@ -1,3 +1,4 @@
+import mongoose,{isValidObjectId} from 'mongoose';
 import {Course} from '../models/course.model.js';
 import {User} from '../models/user.model.js';
 import {asyncHandler, ApiError, ApiResponse,uploadOnCloudinary} from '../utils/index.js';
@@ -53,7 +54,18 @@ const getCourses = asyncHandler(async(req, res)=> {
 
 
 const getCourse = asyncHandler(async(req, res)=> {
+    const {courseId} = req.params;
+    if(!isValidObjectId(courseId)) {
+        throw new ApiError(400, 'Invalid course id');
+    }
 
+    const course = await Course.findById(courseId);
+    if(!course) {
+        throw new ApiError(404, 'Course does not exist');
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200, {course}, 'Course fetched successfully'));
 })
 
 const updateCourse = asyncHandler(async(req, res)=> {
