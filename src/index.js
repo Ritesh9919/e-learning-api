@@ -6,6 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import {connectDB} from './db/index.js';
+import loggerMiddleware from './middlewares/logger.middleware.js'
 
 import userRouter from './routes/user.route.js';
 import courseRouter from './routes/course.route.js';
@@ -24,6 +25,7 @@ cloudinary.config({
   });
 
 
+ app.use(loggerMiddleware);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -39,7 +41,7 @@ app.get('/', (req, res)=> {
 
 app.use('/api/users', userRouter);
 app.use('/api/courses', courseRouter);
-app.use('/api/courses/enroll', enrollmentRouter)
+app.use('/api/enroll/courses', enrollmentRouter)
 
 
 
