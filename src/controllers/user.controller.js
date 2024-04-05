@@ -1,6 +1,6 @@
 import mongoose,{isValidObjectId} from 'mongoose';
 import {User} from '../models/user.model.js';
-import {asyncHandler,ApiError,ApiResponse, uploadOnCloudinary, deleteFileOnCloudinary} from '../utils/index.js';
+import {asyncHandler,ApiError,ApiResponse, uploadOnCloudinary, deleteFileOnCloudinary, sendMail} from '../utils/index.js';
 
 
 const registerUser = asyncHandler(async(req, res)=> {
@@ -14,7 +14,7 @@ const registerUser = asyncHandler(async(req, res)=> {
      throw new ApiError(409, 'User already exist');
    }
 
-   console.log(req.file);
+   
    const userProfileImageLocalPath = req.file.path;
    if(!userProfileImageLocalPath) {
     throw new ApiError(400, 'User profileImage file is required');
@@ -32,6 +32,8 @@ const registerUser = asyncHandler(async(req, res)=> {
     profileImage:userProfileImage?.url,
     role
    });
+
+      await sendMail({email, emailType:'VERIFY'});
 
    const createdUser = await User.findById(registeredUser._id).select('-password');
 
