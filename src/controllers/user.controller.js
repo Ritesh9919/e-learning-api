@@ -33,6 +33,8 @@ const registerUser = asyncHandler(async(req, res)=> {
     role
    });
 
+
+        // sending verification mail
       await sendMail({email, emailType:'VERIFY'});
 
    const createdUser = await User.findById(registeredUser._id).select('-password');

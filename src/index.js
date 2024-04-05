@@ -1,3 +1,4 @@
+// core module
 import dotenv from 'dotenv';
 dotenv.config()
 
@@ -5,12 +6,15 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+// internal modules
 import {connectDB} from './db/index.js';
 import loggerMiddleware from './middlewares/logger.middleware.js'
 
+// routers
 import userRouter from './routes/user.route.js';
 import courseRouter from './routes/course.route.js';
 import enrollmentRouter from './routes/enrollment.route.js'
+
 
 const app = express();
 
@@ -25,7 +29,8 @@ cloudinary.config({
   });
 
 
- app.use(loggerMiddleware);
+ // application level middlewares 
+app.use(loggerMiddleware);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -38,7 +43,7 @@ app.get('/', (req, res)=> {
 })
 
 
-
+// routers
 app.use('/api/users', userRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/enroll/courses', enrollmentRouter)

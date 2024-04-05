@@ -21,6 +21,8 @@ const enrollment = asyncHandler(async(req, res)=> {
         course:courseId
     })
     const user = await User.findById(req.user._id);
+
+    // sending course enrollment mail
     await sendMail({email:user.email, emailType:'ENROLLMENT'})
 
     return res.status(201)
